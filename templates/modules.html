@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Module List -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Modules</h3>
+            <div class="mt-4">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trigger</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200" id="moduleList">
+                                        {% for module in modules %}
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ module.name }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ module.trigger }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if module.is_enabled %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                                    {{ 'Enabled' if module.is_enabled else 'Disabled' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <button onclick="editModule({{ module.id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                                <button onclick="toggleModule({{ module.id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                                    {{ 'Disable' if module.is_enabled else 'Enable' }}
+                                                </button>
+                                                <button onclick="deleteModule({{ module.id }})" class="text-red-600 hover:text-red-900">Delete</button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Editor -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">Module Editor</h3>
+            <div class="mt-4">
+                <form id="moduleForm" class="space-y-6">
+                    <input type="hidden" id="moduleId" name="moduleId">
+                    <div>
+                        <label for="moduleName" class="block text-sm font-medium text-gray-700">Module Name</label>
+                        <input type="text" name="moduleName" id="moduleName" required
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="moduleTrigger" class="block text-sm font-medium text-gray-700">Trigger</label>
+                        <input type="text" name="moduleTrigger" id="moduleTrigger" value="!" required
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="moduleCode" class="block text-sm font-medium text-gray-700">Module Code</label>
+                        <textarea name="moduleCode" id="moduleCode" rows="10" required
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                    </div>
+                    <div>
+                        <label for="aiHelp" class="block text-sm font-medium text-gray-700">AI Help</label>
+                        <textarea name="aiHelp" id="aiHelp" rows="3"
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                            placeholder="Describe the type of module you want to create..."></textarea>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="button" onclick="showTemplate()"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-file-code mr-2"></i>
+                            Show Template
+                        </button>
+                        <button type="button" onclick="generateAIModule()"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-robot mr-2"></i>
+                            Generate with AI
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-save mr-2"></i>
+                            Save Module
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editModule(id) {
+    fetch(`/modules/${id}`)
+        .then(response => response.json())
+        .then(module => {
+            document.getElementById('moduleId').value = module.id;
+            document.getElementById('moduleName').value = module.name;
+            document.getElementById('moduleTrigger').value = module.trigger;
+            document.getElementById('moduleCode').value = module.code;
+        });
+}
+
+function toggleModule(id) {
+    fetch(`/modules/${id}/toggle`, { method: 'POST' })
+        .then(response => response.json())
+        .then(() => window.location.reload());
+}
+
+function deleteModule(id) {
+    if (confirm('Are you sure you want to delete this module?')) {
+        fetch(`/modules/${id}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(() => window.location.reload());
+    }
+}
+
+function generateAIModule() {
+    const aiHelp = document.getElementById('aiHelp').value;
+    if (!aiHelp) {
+        alert('Please describe the module you want to create');
+        return;
+    }
+
+    fetch('/modules/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ description: aiHelp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.code) {
+            document.getElementById('moduleCode').value = data.code;
+        } else {
+            alert('Failed to generate module code');
+        }
+    });
+}
+
+function showTemplate() {
+    fetch('/modules/template')
+        .then(response => response.text())
+        .then(template => {
+            document.getElementById('moduleCode').value = template;
+        });
+}
+
+document.getElementById('moduleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = {
+        id: formData.get('moduleId'),
+        name: formData.get('moduleName'),
+        trigger: formData.get('moduleTrigger'),
+        code: formData.get('moduleCode')
+    };
+
+    const method = data.id ? 'PUT' : 'POST';
+    const url = data.id ? `/modules/${data.id}` : '/modules';
+
+    fetch(url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(() => window.location.reload());
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex h-[80vh] bg-white shadow rounded-lg overflow-hidden">
+    <!-- Channel List -->
+    <div class="w-1/5 bg-gray-100 border-r flex flex-col">
+        <div class="p-4 font-bold text-indigo-700 flex items-center justify-between">
+            <span><i class="fas fa-hashtag mr-2"></i>Channels</span>
+            <button id="join-channel-btn" class="ml-2 text-xs bg-indigo-500 hover:bg-indigo-700 text-white px-2 py-1 rounded"><i class="fas fa-plus"></i> Join</button>
+        </div>
+        <ul id="channel-list" class="flex-1 overflow-y-auto">
+            <!-- Channels will be dynamically populated -->
+        </ul>
+    </div>
+    <!-- Chat Area -->
+    <div class="flex-1 flex flex-col">
+        <div id="topic-bar" class="bg-gray-50 border-b px-4 py-2 text-sm text-gray-700 font-semibold flex items-center justify-between">
+            <span id="topic-text">{{ channel or 'No Channel' }}</span>
+            <button id="part-channel-btn" class="text-xs bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded ml-2"><i class="fas fa-sign-out-alt"></i> Part</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4" id="chat-messages">
+            <!-- Messages will be dynamically populated -->
+        </div>
+        <div class="border-t p-2 bg-gray-50 flex items-center">
+            <input id="chat-input" type="text" class="flex-1 rounded border px-3 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Type your message..." autocomplete="off">
+            <button id="send-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-medium"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <!-- User List -->
+    <div class="w-1/5 bg-gray-100 border-l flex flex-col">
+        <div class="p-4 font-bold text-indigo-700 flex items-center">
+            <i class="fas fa-users mr-2"></i>Users
+        </div>
+        <ul id="user-list" class="flex-1 overflow-y-auto">
+            <!-- Users will be dynamically populated -->
+        </ul>
+    </div>
+</div>
+<!-- Join Channel Modal -->
+<div id="join-channel-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+        <h2 class="text-lg font-bold mb-4">Join Channel</h2>
+        <input id="join-channel-input" type="text" class="w-full border rounded px-3 py-2 mb-4" placeholder="#channel">
+        <div class="flex justify-end space-x-2">
+            <button id="join-channel-cancel" class="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+            <button id="join-channel-confirm" class="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700">Join</button>
+        </div>
+    </div>
+</div>
+<div id="webchat-status" class="mt-4 text-center text-sm text-gray-500"></div>
+<script>
+window.initialChannel = {{ channel|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/webchat.js') }}"></script>
+{% endblock %} 

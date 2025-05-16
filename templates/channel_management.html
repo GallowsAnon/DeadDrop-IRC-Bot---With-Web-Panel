@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Channel Management</h2>
+        <p class="text-gray-600 mb-6">Configure auto-kick settings for each channel</p>
+
+        <!-- User Warnings Section -->
+        <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Active Warnings</h3>
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul id="warnings-list" class="divide-y divide-gray-200">
+                    <!-- Warnings will be populated here -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for channel, settings in channel_settings.items() %}
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">{{ channel }}</h3>
+                    <div class="flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer channel-toggle" 
+                                   id="enabled-{{ channel }}" 
+                                   data-channel="{{ channel }}"
+                                   {% if settings.is_enabled %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">Enabled</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                    <form class="channel-settings-form space-y-4" data-channel="{{ channel }}">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Flood Protection</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                           name="flood_threshold" 
+                                           value="{{ settings.flood_threshold }}"
+                                           min="1" max="100"
+                                           placeholder="Messages">
+                                    <p class="mt-1 text-sm text-gray-500">Messages</p>
+                                </div>
+                                <div>
+                                    <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                           name="flood_timeframe" 
+                                           value="{{ settings.flood_timeframe }}"
+                                           min="1" max="300"
+                                           placeholder="Seconds">
+                                    <p class="mt-1 text-sm text-gray-500">Seconds</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Caps Percentage</label>
+                            <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                   name="caps_percentage" 
+                                   value="{{ settings.caps_percentage }}"
+                                   min="0" max="100"
+                                   placeholder="Percentage">
+                            <p class="mt-1 text-sm text-gray-500">Percentage of caps to trigger kick (0-100)</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Warning System</label>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">First Warning</label>
+                                    <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                           name="warning_timeout_1" 
+                                           value="{{ settings.warning_timeout_1 }}"
+                                           min="1" max="3600"
+                                           placeholder="Seconds">
+                                    <p class="mt-1 text-xs text-gray-500">Timeout (seconds)</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Second Warning</label>
+                                    <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                           name="warning_timeout_2" 
+                                           value="{{ settings.warning_timeout_2 }}"
+                                           min="1" max="3600"
+                                           placeholder="Seconds">
+                                    <p class="mt-1 text-xs text-gray-500">Timeout (seconds)</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-1">Third Warning</label>
+                                    <input type="number" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                           name="warning_ban_duration" 
+                                           value="{{ settings.warning_ban_duration }}"
+                                           min="1" max="604800"
+                                           placeholder="Seconds">
+                                    <p class="mt-1 text-xs text-gray-500">Ban Duration (seconds)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submissions
+    document.querySelectorAll('.channel-settings-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const channel = this.dataset.channel;
+            const formData = new FormData(this);
+            formData.append('channel', channel);
+            formData.append('is_enabled', document.querySelector(`#enabled-${CSS.escape(channel)}`).checked ? 'on' : 'off');
+
+            // Find the button and set to Saving...
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+            button.textContent = 'Saving...';
+            button.disabled = true;
+
+            fetch('/channel_management/update', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Settings saved successfully', 'success');
+                } else {
+                    showToast('Error saving settings', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error saving settings', 'error');
+            })
+            .finally(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        });
+    });
+
+    // Handle toggle switches
+    document.querySelectorAll('.channel-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const channel = this.dataset.channel;
+            const form = document.querySelector(`.channel-settings-form[data-channel="${channel}"]`);
+            form.dispatchEvent(new Event('submit'));
+        });
+    });
+
+    // Function to load warnings
+    function loadWarnings() {
+        fetch('/get_warnings')
+            .then(response => response.json())
+            .then(data => {
+                const warningsList = document.getElementById('warnings-list');
+                warningsList.innerHTML = '';
+                
+                data.warnings.forEach(warning => {
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-4 sm:px-6';
+                    li.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">${warning.nick}</p>
+                                    <p class="text-sm text-gray-500">Channel: ${warning.channel}</p>
+                                    <p class="text-sm text-gray-500">Warnings: ${warning.warning_count}</p>
+                                </div>
+                            </div>
+                            <button onclick="clearWarning('${warning.channel}', '${warning.nick}')" 
+                                    class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Clear Warning
+                            </button>
+                        </div>
+                    `;
+                    warningsList.appendChild(li);
+                });
+            })
+            .catch(error => console.error('Error loading warnings:', error));
+    }
+
+    // Function to clear warning
+    window.clearWarning = function(channel, nick) {
+        const formData = new FormData();
+        formData.append('channel', channel);
+        formData.append('nick', nick);
+
+        fetch('/clear_warning', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Warning cleared successfully', 'success');
+                loadWarnings(); // Reload the warnings list
+            } else {
+                showToast('Error clearing warning', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error clearing warning', 'error');
+        });
+    };
+
+    // Load warnings initially and set up periodic refresh
+    loadWarnings();
+    setInterval(loadWarnings, 30000); // Refresh every 30 seconds
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } shadow-lg z-50`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %} 

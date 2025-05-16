@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">URL Watcher Settings</h2>
+    <form method="POST">
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">URL Color</label>
+            <div class="flex items-center gap-2">
+                <select name="url_color" class="w-32 border rounded px-2 py-1">
+                    {% set irc_colors = [
+                        ('00', 'White', '#FFFFFF'),
+                        ('01', 'Black', '#000000'),
+                        ('02', 'Blue', '#00007F'),
+                        ('03', 'Green', '#009300'),
+                        ('04', 'Red', '#FF0000'),
+                        ('05', 'Brown', '#7F0000'),
+                        ('06', 'Purple', '#9C009C'),
+                        ('07', 'Orange', '#FC7F00'),
+                        ('08', 'Yellow', '#FFFF00'),
+                        ('09', 'Light Green', '#00FC00'),
+                        ('10', 'Cyan', '#009393'),
+                        ('11', 'Light Cyan', '#00FFFF'),
+                        ('12', 'Light Blue', '#0000FC'),
+                        ('13', 'Pink', '#FF00FF'),
+                        ('14', 'Grey', '#7F7F7F'),
+                        ('15', 'Light Grey', '#D2D2D2')
+                    ] %}
+                    {% for code, name, hex in irc_colors %}
+                    <option value="{{ code }}" {% if settings.url_color == code %}selected{% endif %} style="background: {{ hex }}; color: #000">{{ name }} ({{ code }})</option>
+                    {% endfor %}
+                </select>
+                <div class="w-8 h-8 border rounded" style="background: {{ irc_colors|selectattr('0', 'equalto', settings.url_color)|map(attribute='2')|first }}"></div>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">YouTube Color</label>
+            <div class="flex items-center gap-2">
+                <select name="youtube_color" class="w-32 border rounded px-2 py-1">
+                    {% for code, name, hex in irc_colors %}
+                    <option value="{{ code }}" {% if settings.youtube_color == code %}selected{% endif %} style="background: {{ hex }}; color: #000">{{ name }} ({{ code }})</option>
+                    {% endfor %}
+                </select>
+                <div class="w-8 h-8 border rounded" style="background: {{ irc_colors|selectattr('0', 'equalto', settings.youtube_color)|map(attribute='2')|first }}"></div>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">YouTube API Key</label>
+            <input type="text" name="youtube_api_key" value="{{ settings.youtube_api_key }}" class="w-full border rounded px-2 py-1">
+        </div>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Save Settings</button>
+    </form>
+</div>
+{% endblock %} 

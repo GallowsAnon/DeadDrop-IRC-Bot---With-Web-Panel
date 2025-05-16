@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="md:grid md:grid-cols-3 md:gap-6">
+                <div class="md:col-span-1">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">AI Settings</h3>
+                    <p class="mt-1 text-sm text-gray-500">Configure the bot's AI capabilities using OpenAI's GPT model or Google's Gemini model.</p>
+                </div>
+                <div class="mt-5 md:mt-0 md:col-span-2">
+                    <form action="{{ url_for('update_ai_settings') }}" method="POST" class="space-y-6">
+                        <div>
+                            <label for="ai_provider" class="block text-sm font-medium text-gray-700">AI Provider</label>
+                            <select name="ai_provider" id="ai_provider" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="openai" {% if ai_settings.ai_provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                                <option value="gemini" {% if ai_settings.ai_provider == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                            </select>
+                        </div>
+
+                        <div id="openai_settings" {% if ai_settings.ai_provider != 'openai' %}style="display: none;"{% endif %}>
+                            <label for="openai_api_key" class="block text-sm font-medium text-gray-700">OpenAI API Key</label>
+                            <input type="password" name="openai_api_key" id="openai_api_key" value="{{ ai_settings.openai_api_key }}"
+                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+
+                        <div id="gemini_settings" {% if ai_settings.ai_provider != 'gemini' %}style="display: none;"{% endif %}>
+                            <label for="gemini_api_key" class="block text-sm font-medium text-gray-700">Gemini API Key</label>
+                            <input type="password" name="gemini_api_key" id="gemini_api_key" value="{{ ai_settings.gemini_api_key }}"
+                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+
+                        <div>
+                            <label for="system_prompt" class="block text-sm font-medium text-gray-700">System Prompt</label>
+                            <textarea name="system_prompt" id="system_prompt" rows="3"
+                                class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ ai_settings.system_prompt }}</textarea>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_enabled" id="is_enabled" {% if ai_settings.is_enabled %}checked{% endif %}
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                            <label for="is_enabled" class="ml-2 block text-sm text-gray-900">Enable AI Responses</label>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Save Settings
+                            </button>
+                            <button type="button" onclick="testConnection()"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Test Connection
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900">AI Status</h3>
+            <div class="mt-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        {% if ai_settings.is_enabled and ((ai_settings.ai_provider == 'openai' and ai_settings.openai_api_key) or (ai_settings.ai_provider == 'gemini' and ai_settings.gemini_api_key)) %}
+                        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-robot text-green-600"></i>
+                        </div>
+                        {% else %}
+                        <div class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-robot text-red-600"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="text-sm font-medium text-gray-900">AI Response Status</h4>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {% if ai_settings.is_enabled and ((ai_settings.ai_provider == 'openai' and ai_settings.openai_api_key) or (ai_settings.ai_provider == 'gemini' and ai_settings.gemini_api_key)) %}
+                            <span class="text-green-600 font-medium">Active</span>
+                            {% else %}
+                            <span class="text-red-600 font-medium">Inactive</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div id="test-result" class="hidden">
+                        <div class="rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i id="test-icon" class="fas"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p id="test-message" class="text-sm font-medium"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('ai_provider').addEventListener('change', function() {
+    const provider = this.value;
+    document.getElementById('openai_settings').style.display = provider === 'openai' ? 'block' : 'none';
+    document.getElementById('gemini_settings').style.display = provider === 'gemini' ? 'block' : 'none';
+});
+
+function showTestResult(success, message) {
+    const resultDiv = document.getElementById('test-result');
+    const icon = document.getElementById('test-icon');
+    const messageEl = document.getElementById('test-message');
+    
+    resultDiv.classList.remove('hidden');
+    resultDiv.classList.remove('bg-green-50', 'bg-red-50');
+    icon.classList.remove('fa-check-circle', 'fa-exclamation-circle');
+    icon.classList.remove('text-green-400', 'text-red-400');
+    
+    if (success) {
+        resultDiv.classList.add('bg-green-50');
+        icon.classList.add('fa-check-circle', 'text-green-400');
+    } else {
+        resultDiv.classList.add('bg-red-50');
+        icon.classList.add('fa-exclamation-circle', 'text-red-400');
+    }
+    
+    messageEl.textContent = message;
+}
+
+function testConnection() {
+    const provider = document.getElementById('ai_provider').value;
+    const apiKey = provider === 'openai' ? document.getElementById('openai_api_key').value : document.getElementById('gemini_api_key').value;
+    
+    if (!apiKey) {
+        showTestResult(false, 'Please enter an API key first');
+        return;
+    }
+
+    showTestResult(true, 'Testing connection...');
+
+    fetch('/ai_settings/test_connection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            provider: provider,
+            api_key: apiKey
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        showTestResult(data.success, data.message);
+    })
+    .catch(error => {
+        showTestResult(false, 'Error testing connection: ' + error.message);
+    });
+}
+</script>
+{% endblock %} 

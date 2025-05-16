@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-lg font-medium text-gray-900">Bot Status</h2>
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            {% if settings.is_connected %}
+                            <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                <i class="fas fa-plug text-green-600"></i>
+                            </div>
+                            {% else %}
+                            <div class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
+                                <i class="fas fa-plug-circle-xmark text-red-600"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-900">Connection Status</h3>
+                            <p class="mt-1 text-sm text-gray-500" data-status-indicator>
+                                {% if settings.is_connected %}
+                                <span class="text-green-600 font-medium">Connected</span>
+                                {% else %}
+                                <span class="text-red-600 font-medium">Disconnected</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-server text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-900">Server</h3>
+                            <p class="mt-1 text-sm text-gray-500" data-server-info>{{ settings.server }}:{{ settings.port }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h2 class="text-lg font-medium text-gray-900">Channel List</h2>
+            <div class="mt-4">
+                {% if channels %}
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {% for channel in channels %}
+                    <div class="bg-gray-50 rounded-lg p-4 flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                <i class="fas fa-hashtag text-purple-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900">{{ channel }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <div class="mx-auto h-12 w-12 text-gray-400">
+                        <i class="fas fa-comment-slash fa-2x"></i>
+                    </div>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No Channels</h3>
+                    <p class="mt-1 text-sm text-gray-500">No channels are currently configured.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
